@@ -1,0 +1,128 @@
+@model Models.ViewModels.IncomingDocumentViewModel
+
+@{
+    ViewData["Title"] = "Поступления";
+}
+
+<h1>Поступления</h1>
+
+<hr />
+
+<form asp-action="Index" method="get">
+    <div class="row">
+        <div class="col-md-2">
+            <div class="form-group">
+                <label>Период с</label>
+                <input type="date" name="startDate" class="form-control"
+                       value="@(Model.StartDate?.ToString("yyyy-MM-dd") ?? "")" />
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-group">
+                <label>Период по</label>
+                <input type="date" name="endDate" class="form-control"
+                       value="@(Model.EndDate?.ToString("yyyy-MM-dd") ?? "")" />
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label>Номера документов</label>
+                <select name="documentNumbers" class="form-control">
+                    <option value="">-- не выбрано --</option>
+                    @foreach (var d in Model.AllDocuments)
+                    {
+                        var id = int.Parse(d.Value);
+                        <option value="@d.Value" selected="@(Model.DocumentNumbers?.Contains(id) ?? false)">
+                            @d.Text
+                        </option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label>Ресурсы</label>
+                <select name="resourceIds" class="form-control">
+                    <option value="">-- не выбрано --</option>
+                    @foreach (var r in Model.AllResources)
+                    {
+                        var id = int.Parse(r.Value);
+                        <option value="@r.Value" selected="@(Model.ResourceIds?.Contains(id) ?? false)">
+                            @r.Text
+                        </option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="form-group">
+                <label>Единицы измерения</label>
+                <select name="unitIds" class="form-control">
+                    <option value="">-- не выбрано --</option>
+                    @foreach (var u in Model.AllUnits)
+                    {
+                        var id = int.Parse(u.Value);
+                        <option value="@u.Value" selected="@(Model.UnitIds?.Contains(id) ?? false)">
+                            @u.Text
+                        </option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <button type="submit" class="btn btn-primary">Применить фильтр</button>
+            <a asp-action="Index" class="btn btn-secondary">Сбросить</a>
+        </div>
+    </div>
+</form>
+
+<hr />
+
+<p>
+    <a asp-action="Create" class="btn btn-success">Создать новый документ</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Номер</th>
+            <th>Дата</th>
+            <th>Содержимое</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Documents)
+        {
+            <tr>
+                <td>@item.Number</td>
+                <td>@item.Date.ToShortDateString()</td>
+                <td>
+                    @if (item.IncomingResources.Any())
+                    {
+                        <ul>
+                            @foreach (var resource in item.IncomingResources)
+                            {
+                                <li>@resource.Resource.Name - @resource.Quantity @resource.UnitOfMeasurement.Name</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <span>(пустой)</span>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Изменить</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Удалить</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

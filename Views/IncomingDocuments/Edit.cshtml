@@ -1,0 +1,121 @@
+@model Models.Domain.IncomingDocument
+
+@{
+    ViewData["Title"] = "Редактирование документа";
+}
+
+<h1>Редактирование документа №@Model.Number</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+             <input type="hidden" asp-for="Id" />
+             <div class="form-group">
+                 <label asp-for="Number" class="control-label"></label>
+                 <input asp-for="Number" class="form-control" />
+                 <span asp-validation-for="Number" class="text-danger"></span>
+             </div>
+             <div class="form-group mt-2">
+                 <label asp-for="Date" class="control-label"></label>
+                 <input asp-for="Date" type="date" class="form-control" value="@Model.Date.ToString("yyyy-MM-dd")" />
+                 <span asp-validation-for="Date" class="text-danger"></span>
+             </div>
+             <div class="form-group mt-3">
+                 <input type="submit" value="Сохранить" class="btn btn-primary" />
+             </div>
+        </form>
+    </div>
+</div>
+
+<hr />
+<h4>Позиции документа</h4>
+
+<div class="row">
+    <div class="col-md-8">
+        <table class="table">
+            <thead>
+                <tr><th>Ресурс</th><th>Количество</th><th>Ед. изм.</th><th></th></tr>
+            </thead>
+            <tbody id="resourcesTableBody">
+                 @foreach (var item in Model.IncomingResources)
+                 {
+                     @Html.Partial("_IncomingResourceRow", item)
+                 }
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-4">
+        <h5>Добавить позицию</h5>
+        <form id="addResourceForm" data-document-id="@Model.Id">
+             <div class="form-group">
+                 <label>Ресурс</label>
+                 <select id="resourceId" class="form-control" asp-items="ViewBag.Resources"></select>
+             </div>
+             <div class="form-group mt-2">
+                 <label>Ед. изм.</label>
+                 <select id="unitId" class="form-control" asp-items="ViewBag.Units"></select>
+             </div>
+             <div class="form-group mt-2">
+                 <label>Количество</label>
+                 <input type="number" id="quantity" class="form-control" step="0.01" />
+             </div>
+             <div class="form-group mt-3">
+                 <button type="submit" class="btn btn-success">Добавить</button>
+             </div>
+        </form>
+    </div>
+</div>
+
+
+<div>
+    <a asp-action="Index">Назад к списку</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            $("#addResourceForm").on("submit", function (e) {
+                e.preventDefault();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("AddResourceToDocument")',
+                    data: {
+                        documentId: $(this).data("document-id"),
+                        resourceId: $("#resourceId").val(),
+                        unitId: $("#unitId").val(),
+                        quantity: $("#quantity").val()
+                    },
+                    success: function (response) {
+                        $("#resourcesTableBody").append(response);
+                        $("#quantity").val('');
+                    },
+                    error: function (req, status, error) {
+                        alert("Ошибка: " + req.responseText);
+                    }
+                });
+            });
+
+            $("#resourcesTableBody").on("click", ".remove-item", function () {
+                var button = $(this);
+                var incomingResourceId = button.data("id");
+                
+                if (confirm("Вы уверены, что хотите удалить эту позицию?")) {
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("RemoveResourceFromDocument")',
+                        data: { incomingResourceId: incomingResourceId },
+                        success: function () {
+                            button.closest("tr").remove();
+                        },
+                        error: function () {
+                            alert("Не удалось удалить позицию.");
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}

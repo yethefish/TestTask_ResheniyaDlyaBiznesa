@@ -1,0 +1,10 @@
+@model Models.Domain.IncomingResource
+
+<tr>
+    <td>@Model.Resource.Name</td>
+    <td>@Model.Quantity</td>
+    <td>@Model.UnitOfMeasurement.Name</td>
+    <td>
+        <button class="btn btn-sm btn-danger remove-item" data-id="@Model.Id">Удалить</button>
+    </td>
+</tr>

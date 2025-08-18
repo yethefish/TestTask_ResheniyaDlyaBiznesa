@@ -1,0 +1,77 @@
+@model Models.ViewModels.ReferenceViewModel
+@{
+    ViewData["Title"] = "Справочник";
+}
+
+<h1>Справочник</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <h3>Ресурсы</h3>
+        <form asp-action="AddResource" method="post" class="mb-2">
+            <div class="input-group">
+                <input type="text" name="name" class="form-control" placeholder="Название ресурса" required />
+                <button type="submit" class="btn btn-success">Добавить</button>
+            </div>
+        </form>
+        <table class="table table-bordered table-striped">
+            <thead class="table-light">
+                <tr>
+                    <th>Название</th>
+                    <th>Состояние</th>
+                    <th style="width:120px;">Действие</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model.Resources)
+                {
+                    <tr>
+                        <td>@r.Name</td>
+                        <td>@r.State</td>
+                        <td>
+                            <form asp-action="DeleteResource" method="post" style="display:inline">
+                                <input type="hidden" name="id" value="@r.Id" />
+                                <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-md-6">
+        <h3>Единицы измерения</h3>
+        <form asp-action="AddUnit" method="post" class="mb-2">
+            <div class="input-group">
+                <input type="text" name="name" class="form-control" placeholder="Название единицы" required />
+                <button type="submit" class="btn btn-success">Добавить</button>
+            </div>
+        </form>
+        <table class="table table-bordered table-striped">
+            <thead class="table-light">
+                <tr>
+                    <th>Название</th>
+                    <th>Состояние</th>
+                    <th style="width:120px;">Действие</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in Model.Units)
+                {
+                    <tr>
+                        <td>@u.Name</td>
+                        <td>@u.State</td>
+                        <td>
+                            <form asp-action="DeleteUnit" method="post" style="display:inline">
+                                <input type="hidden" name="id" value="@u.Id" />
+                                <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
